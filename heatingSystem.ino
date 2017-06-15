@@ -7,11 +7,11 @@ class Output {
   Output(int pin);
   void on();
   void off();
-  bool get_state();
+  bool is_on();
 
   private:
   int pin;
-  bool is_on;
+  bool _on;
 };
 
 Output::Output(int pin) {
@@ -21,16 +21,16 @@ Output::Output(int pin) {
 
 void Output::on() {
   digitalWrite(this->pin, HIGH);
-  this->is_on = true;
+  this->_on = true;
 }
 
 void Output::off() {
   digitalWrite(this->pin, LOW);
-  this->is_on = false;
+  this->_on = false;
 }
 
-bool Output::get_state() {
-  return this->is_on;
+bool Output::is_on() {
+  return this->_on;
 }
 
 class Pump : public Output {
@@ -207,7 +207,7 @@ class Display {
   set_heating_wanted(float temp);
   set_boiler_temp(float temp);
   set_boiler_wanted(float tmep);
-  set_error(byte this_case);
+  set_error();
 
   private:
   void* ptr;
@@ -263,13 +263,12 @@ Display::set_boiler_wanted(float temp) {
   lcd.print(get_dec1(temp));
 }
 
-Display::set_error(byte code) {
+Display::set_error() {
   LiquidCrystal lcd = *(LiquidCrystal *)this->ptr;
   lcd.clear();
   lcd.print("# E R R O R #");
   lcd.setCursor(1, 0);
-  lcd.print("code: ");
-  lcd.print(code);
+  lcd.print("~~~~~~~~~~~~~");
 }
 
 
@@ -280,13 +279,19 @@ void setup() {
   // 12 -> led ERROR
   // A0 -> kotao temp
   // A1 -> boiler temp
+  // 9 -> DS heating
+  // 8 -> DS boiler
   // 4 - 9 -> lcd pins
+
+  bool error = false;
 
   Pump pump(10);
   Boiler boiler(11);
   StateError stateError(12);
   PotHeating potHeating(A0);
   PotBoiler potBoiler(A1);
+  DS heating_sensor(9);
+  DS boiler_sensor(8);
   Display lcdDisplay(4, 5, 6, 7, 8, 9);
 
   float boiler_temperature = 0.0;
@@ -296,17 +301,76 @@ void setup() {
   const int boiler_hist = 3; //this MAY be changed
   const int heating_hist = 5; //recomended
 
+  // boundaries in oC
+  // this MAY change:
+  potBoiler.set_bottom(30);
+  potBoiler.set_upper(50);
+  potHeating.set_bottom(30);
+  potHeating.set_upper(60);
+
   while(true){
-    // todo add error handling!
     heating_ptemp = potHeating.get_temperature();
     boiler_ptemp = potBoiler.get_temperature();
 
     // todo add error handling!
-    heating_temperature = potHeating.get_temperature();
-    boiler_temperature = potBoiler.get_temperature();
+    heating_temperature = heating_sensor.get_temperature();
+    boiler_temperature = boiler_sensor.get_temperature();
+
+    // print some values!
+    lcdDisplay.set_heating_temp(heating_temperature);
+    lcdDisplay.set_heating_wanted(heating_ptemp);
+    lcdDisplay.set_boiler_temp(boiler_temperature);
+    lcdDisplay.set_boiler_temp(boiler_ptemp);
+
+    error |= heating_sensor.is_error();
+    error |= boiler_sensor.is_error();
+    
 
     // todo if for error handling!
-    if (true){
+    if (!error){
+
+      // H-E-A-T-I-N-G
+      // heating water too cold
+      if (heating_temperature < heating_ptemp - heating_hist) {
+        if (pump.is_on()){
+          pump.off();
+        } // else pump is on anyway
+      }
+
+      // heating water at right temperature
+      if (heating_temperature >= heating_ptemp) {
+        if (!pump.is_on()) {
+          pump.on();
+        }
+      }
+
+      // we don't want to turn on boiler while using heating system for warming hot water
+      if (pump.is_on() && boiler.is_on()) {
+        boiler.off();
+      } else if (!pump.is_on()) {
+        
+        // if heating system has to cold water
+        // we decide if boiler temperature is to low
+        if (boiler_temperature < boiler_ptemp - boiler_hist){
+          if (!boiler.is_on()) {
+            boiler.on();
+          }
+        }
+
+        // if boiler is warmed enough
+        if (boiler_temperature > boiler_ptemp) {
+          if (boiler.is_on()) {
+            boiler.off();
+          }
+        }
+        
+      }
+      
+    } else { //we have an error
+      boiler.off();
+      pump.on();
+      stateError.on();
+      lcdDisplay.set_error();
     }
     
   }
