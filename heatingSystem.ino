@@ -273,6 +273,16 @@ void setup() {
   // A0 -> kotao temp
   // A1 -> boiler temp
   // 4 - 9 -> lcd pins
+
+  Pump pump(10);
+  Boiler boiler(11);
+  StateError stateError(12);
+  PotHeating potHeating(A0);
+  PotBoiler potBoiler(A1);
+  Display lcdDisplay(4, 5, 6, 7, 8, 9);
+
+
+  
 }
 
 void loop() {
