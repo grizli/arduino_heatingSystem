@@ -283,7 +283,7 @@ void setup() {
   // A1 -> boiler temp
   // 9 -> DS heating
   // 8 -> DS boiler
-  // 4 - 9 -> lcd pins
+  // 2 - 7 -> lcd pins
 
   bool error = false;
 
@@ -294,7 +294,7 @@ void setup() {
   PotBoiler potBoiler(A1);
   DS heating_sensor(9);
   DS boiler_sensor(8);
-  Display lcdDisplay(4, 5, 6, 7, 8, 9);
+  Display lcdDisplay(2, 3, 4, 5, 6, 7);
 
   float boiler_temperature = 0.0;
   float heating_temperature = 0.0;
