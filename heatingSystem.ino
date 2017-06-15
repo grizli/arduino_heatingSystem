@@ -7,9 +7,11 @@ class Output {
   Output(int pin);
   void on();
   void off();
+  bool get_state();
 
   private:
   int pin;
+  bool is_on;
 };
 
 Output::Output(int pin) {
@@ -19,10 +21,16 @@ Output::Output(int pin) {
 
 void Output::on() {
   digitalWrite(this->pin, HIGH);
+  this->is_on = true;
 }
 
 void Output::off() {
   digitalWrite(this->pin, LOW);
+  this->is_on = false;
+}
+
+bool Output::get_state() {
+  return this->is_on;
 }
 
 class Pump : public Output {
