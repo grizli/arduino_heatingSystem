@@ -325,8 +325,6 @@ void setup() {
     error |= heating_sensor.is_error();
     error |= boiler_sensor.is_error();
     
-
-    // todo if for error handling!
     if (!error){
 
       // H-E-A-T-I-N-G
@@ -347,7 +345,9 @@ void setup() {
       // we don't want to turn on boiler while using heating system for warming hot water
       if (pump.is_on() && boiler.is_on()) {
         boiler.off();
-      } else if (!pump.is_on()) {
+      }
+      
+      if (!pump.is_on()) {
         
         // if heating system has to cold water
         // we decide if boiler temperature is to low
