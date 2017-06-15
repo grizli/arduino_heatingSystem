@@ -1,6 +1,8 @@
 #include<OneWire.h>
 #include<LiquidCrystal.h>
 
+#include <avr/wdt.h>
+
 class Output {
   // General IO pin class
   public:
@@ -308,13 +310,17 @@ void setup() {
   potHeating.set_bottom(30);
   potHeating.set_upper(60);
 
+  wdt_enable(WDTO_8S);
+
   while(true){
     heating_ptemp = potHeating.get_temperature();
     boiler_ptemp = potBoiler.get_temperature();
 
-    // todo add error handling!
+    wdt_reset();
     heating_temperature = heating_sensor.get_temperature();
+    wdt_reset();
     boiler_temperature = boiler_sensor.get_temperature();
+    wdt_reset();
 
     // print some values!
     lcdDisplay.set_heating_temp(heating_temperature);
@@ -332,7 +338,7 @@ void setup() {
       if (heating_temperature < heating_ptemp - heating_hist) {
         if (pump.is_on()){
           pump.off();
-        } // else pump is on anyway
+        } // else pump is off anyway
       }
 
       // heating water at right temperature
@@ -371,6 +377,7 @@ void setup() {
       pump.on();
       stateError.on();
       lcdDisplay.set_error();
+      break;
     }
     
   }
@@ -379,5 +386,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  // actually we never get here :)
+  // actually we never get here if no sensor error :)
+  wdt_reset();
 }
