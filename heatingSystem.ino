@@ -281,11 +281,31 @@ void setup() {
   PotBoiler potBoiler(A1);
   Display lcdDisplay(4, 5, 6, 7, 8, 9);
 
+  float boiler_temperature = 0.0;
+  float heating_temperature = 0.0;
+  float boiler_ptemp = 0.0;
+  float heating_ptemp = 0.0;
+  const int boiler_hist = 3; //this MAY be changed
+  const int heating_hist = 5; //recomended
 
+  while(true){
+    // todo add error handling!
+    heating_ptemp = potHeating.get_temperature();
+    boiler_ptemp = potBoiler.get_temperature();
+
+    // todo add error handling!
+    heating_temperature = potHeating.get_temperature();
+    boiler_temperature = potBoiler.get_temperature();
+
+    // todo if for error handling!
+    if (true){
+    }
+    
+  }
   
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  // actually we never get here :)
 }
