@@ -45,7 +45,7 @@ class Boiler : public Output {
 
 class StateError : public Output {
   public:
-  StateError(int pin) : Output(pin) {};
+  StateError(int pin) : Output(pin) {this->off();};
 };
 
 class DS {
