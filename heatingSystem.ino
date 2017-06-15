@@ -25,11 +25,6 @@ void Output::off() {
   digitalWrite(this->pin, LOW);
 }
 
-class Led : public Output {
-  public:
-  Led(int pin) : Output(pin) {this->on();};
-};
-
 class Pump : public Output {
   public:
   Pump(int pin) : Output(pin) {this->off();};
@@ -40,19 +35,9 @@ class Boiler : public Output {
   Boiler(int pin) : Output(pin) {this->off();};
 };
 
-class StatePump : public Led {
+class StateError : public Output {
   public:
-  StatePump(int pin) : Led(pin) {};
-};
-
-class StateBoiler : public Led {
-  public:
-  StateBoiler(int pin) : Led(pin) {};
-};
-
-class StateError : public Led {
-  public:
-  StateError(int pin) : Led(pin) {};
+  StateError(int pin) : Output(pin) {};
 };
 
 class DS {
@@ -282,7 +267,12 @@ Display::set_error(byte code) {
 
 void setup() {
   // put your setup code here, to run once:
-
+  // 10 -> led & relay pump
+  // 11 -> led & relay boiler
+  // 12 -> led ERROR
+  // A0 -> kotao temp
+  // A1 -> boiler temp
+  // 4 - 9 -> lcd pins
 }
 
 void loop() {
