@@ -83,6 +83,15 @@ bool DS::is_error() {
   return this->error;
 }
 
+/*
+ * This method bare parts are taken from Arduino example:
+ * // OneWire DS18S20, DS18B20, DS1822 Temperature Example
+ * //
+ * // http://www.pjrc.com/teensy/td_libs_OneWire.html
+ * //
+ * // The DallasTemperature library can do all this work for you!
+ * // http://milesburton.com/Dallas_Temperature_Control_Library
+ */
 float DS::get_temperature() {
   byte data[12];
   byte type_s;
