@@ -92,7 +92,7 @@ float DS::get_temperature() {
   byte type_s;
   float celsius;
 
-  OneWire ds1 = static_cast<OneWire>(this->sensor);
+  OneWire ds1 = *(OneWire *)this->sensor;
 
   // start conversion
   ds1.reset();
