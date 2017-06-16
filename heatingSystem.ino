@@ -66,12 +66,12 @@ class DS {
 };
 
 DS::DS (int pin) {
-  OneWire ds1((uint8_t)pin);
-  ds1.search(this->addr);
+  OneWire * ds1 = new OneWire((uint8_t)pin);
+  ds1->search(this->addr);
   if (OneWire::crc8(addr, 7) != addr[7]) {
     this->error = true;
   }
-  this->sensor = &ds1;
+  this->sensor = ds1;
 };
 
 bool DS::is_error() {
@@ -92,12 +92,12 @@ float DS::get_temperature() {
   byte type_s;
   float celsius;
 
-  OneWire ds1 = *(OneWire *)this->sensor;
+  OneWire * ds1 = (OneWire *)this->sensor;
 
   // start conversion
-  ds1.reset();
-  ds1.select(this->addr);
-  ds1.write(0x44, 1); 
+  ds1->reset();
+  ds1->select(this->addr);
+  ds1->write(0x44, 1); 
 
   // wait conversion;  hint: WATCHDOG!!!
   delay(1000);
@@ -122,11 +122,11 @@ float DS::get_temperature() {
   } 
 
   
-  ds1.reset();
-  ds1.select(addr);
-  ds1.write(0xBE);
+  ds1->reset();
+  ds1->select(addr);
+  ds1->write(0xBE);
   for (int i = 0; i < 9; i++) {           // we need 9 bytes
-    data[i] = ds1.read();
+    data[i] = ds1->read();
   }
 
   // Convert the data to actual temperature
@@ -216,14 +216,14 @@ class Display {
 };
 
 Display::Display(int rs, int enable, int d4, int d5, int d6, int d7) {
-  LiquidCrystal lcd((uint8_t)rs, (uint8_t)enable, (uint8_t)d4, (uint8_t)d5, (uint8_t)d6, (uint8_t)d7);
-  lcd.begin(16,2);
-  lcd.print("Starting up....");
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Gr. --,- (--,-)");
-  lcd.print("To. --,- (--,-)");
-  this->ptr = &lcd;
+  LiquidCrystal * lcd = new LiquidCrystal((uint8_t)rs, (uint8_t)enable, (uint8_t)d4, (uint8_t)d5, (uint8_t)d6, (uint8_t)d7);
+  lcd->begin(16,2);
+  lcd->print("Starting up....");
+  lcd->clear();
+  lcd->setCursor(0,0);
+  lcd->print("Gr. --,- (--,-)");
+  lcd->print("To. --,- (--,-)");
+  this->ptr = lcd;
 }
 
 int get_int(float a) {
@@ -235,42 +235,42 @@ int get_dec1(float a) {
 }
 
 Display::set_heating_temp(float temp) {
-  LiquidCrystal lcd = *(LiquidCrystal *)this->ptr;
-  lcd.setCursor(0, 4);
-  lcd.print(get_int(temp));
-  lcd.setCursor(0, 7);
-  lcd.print(get_dec1(temp));
+  LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
+  lcd->setCursor(0, 4);
+  lcd->print(get_int(temp));
+  lcd->setCursor(0, 7);
+  lcd->print(get_dec1(temp));
 }
 Display::set_heating_wanted(float temp) {
-  LiquidCrystal lcd = *(LiquidCrystal *)this->ptr;
-  lcd.setCursor(0, 10);
-  lcd.print(get_int(temp));
-  lcd.setCursor(0, 13);
-  lcd.print(get_dec1(temp));
+  LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
+  lcd->setCursor(0, 10);
+  lcd->print(get_int(temp));
+  lcd->setCursor(0, 13);
+  lcd->print(get_dec1(temp));
 }
 
 Display::set_boiler_temp(float temp) {
-  LiquidCrystal lcd = *(LiquidCrystal *)this->ptr;
-  lcd.setCursor(1, 4);
-  lcd.print(get_int(temp));
-  lcd.setCursor(1, 7);
-  lcd.print(get_dec1(temp));
+  LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
+  lcd->setCursor(1, 4);
+  lcd->print(get_int(temp));
+  lcd->setCursor(1, 7);
+  lcd->print(get_dec1(temp));
 }
 
 Display::set_boiler_wanted(float temp) {
-  LiquidCrystal lcd = *(LiquidCrystal *)this->ptr;
-  lcd.setCursor(1, 10);
-  lcd.print(get_int(temp));
-  lcd.setCursor(1, 13);
-  lcd.print(get_dec1(temp));
+  LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
+  lcd->setCursor(1, 10);
+  lcd->print(get_int(temp));
+  lcd->setCursor(1, 13);
+  lcd->print(get_dec1(temp));
 }
 
 Display::set_error() {
-  LiquidCrystal lcd = *(LiquidCrystal *)this->ptr;
-  lcd.clear();
-  lcd.print("# E R R O R #");
-  lcd.setCursor(1, 0);
-  lcd.print("~~~~~~~~~~~~~");
+  LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
+  lcd->clear();
+  lcd->print("# E R R O R #");
+  lcd->setCursor(1, 0);
+  lcd->print("~~~~~~~~~~~~~");
 }
 
 
