@@ -222,6 +222,7 @@ Display::Display(int rs, int enable, int d4, int d5, int d6, int d7) {
   lcd->clear();
   lcd->setCursor(0,0);
   lcd->print("Gr. --,- (--,-)");
+  lcd->setCursor(1,0);
   lcd->print("To. --,- (--,-)");
   this->ptr = lcd;
 }
@@ -355,8 +356,8 @@ void setup() {
       
       if (!pump.is_on()) {
         
-        // if heating system has to cold water
-        // we decide if boiler temperature is to low
+        // if heating system has too cold water
+        // we decide if boiler temperature is too low
         if (boiler_temperature < boiler_ptemp - boiler_hist){
           if (!boiler.is_on()) {
             boiler.on();
