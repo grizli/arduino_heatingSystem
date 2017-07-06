@@ -118,6 +118,7 @@ float DS::get_temperature() {
       break;
     default:
       //Serial.println("Device is not a DS18x20 family device.");
+      this->error = true;
       return;
   } 
 
@@ -149,10 +150,6 @@ float DS::get_temperature() {
     //// default is 12 bit resolution, 750 ms conversion time
   }
   celsius = (float)raw / 16.0;
-
-  if (raw == 0) {
-    this->error = true;
-  }
 
   return celsius;
 }
