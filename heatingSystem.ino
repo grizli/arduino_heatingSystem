@@ -206,9 +206,11 @@ class Display {
   set_heating_wanted(float temp);
   set_boiler_temp(float temp);
   set_boiler_wanted(float tmep);
-  set_error();
+  set_error(bool sensor1, bool sensor2);
 
   private:
+  print_state(bool state);
+
   void* ptr;
 };
 
@@ -263,12 +265,30 @@ Display::set_boiler_wanted(float temp) {
   lcd->print(get_dec1(temp));
 }
 
-Display::set_error() {
+Display::print_state(bool state)
+{
+  LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
+
+  if (state == true)
+  {
+    lcd->print("OK ");
+  }
+  else
+  {
+    lcd->print("ERR");
+  }
+}
+
+Display::set_error(bool sensor1, bool sensor2) {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
   lcd->clear();
   lcd->print("# E R R O R #");
   lcd->setCursor(1, 0);
-  lcd->print("~~~~~~~~~~~~~");
+  lcd->print("s1: ");
+  this->print_state(sensor1);
+  lcd->print("..");
+  lcd->print("s2: ");
+  this->print_state(sensor2);
 }
 
 
@@ -374,7 +394,7 @@ void setup() {
       boiler.off();
       pump.on();
       stateError.on();
-      lcdDisplay.set_error();
+      lcdDisplay.set_error(heating_sensor.is_error(), boiler_sensor.is_error());
       break;
     }
     
