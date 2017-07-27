@@ -158,7 +158,7 @@ class Pots {
   public:
   Pots (int pin);
   int get_value();
-  int get_temperature();
+  float get_temperature();
   void set_upper(int a);
   void set_bottom(int a);
 
@@ -184,8 +184,8 @@ int Pots::get_value() {
   return analogRead(this->pin);
 }
 
-int Pots::get_temperature() {
-  float steps = 255.0/(this->upper-this->bottom);
+float Pots::get_temperature() {
+  float steps = (this->upper-this->bottom)/1024.0;
   return this->bottom + steps * this->get_value();
 }
 
@@ -221,7 +221,7 @@ Display::Display(int rs, int enable, int d4, int d5, int d6, int d7) {
   lcd->clear();
   lcd->setCursor(0,0);
   lcd->print("Gr. --,- (--,-)");
-  lcd->setCursor(1,0);
+  lcd->setCursor(0,1);
   lcd->print("To. --,- (--,-)");
   this->ptr = lcd;
 }
@@ -231,37 +231,39 @@ int get_int(float a) {
 }
 
 int get_dec1(float a) {
-  return (int)(a - get_int(a))*10;
+  float var = a - get_int(a);
+  int fixed = var * 10;
+  return fixed;
 }
 
 Display::set_heating_temp(float temp) {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
-  lcd->setCursor(0, 4);
+  lcd->setCursor(4, 0);
   lcd->print(get_int(temp));
-  lcd->setCursor(0, 7);
+  lcd->setCursor(7, 0);
   lcd->print(get_dec1(temp));
 }
 Display::set_heating_wanted(float temp) {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
-  lcd->setCursor(0, 10);
+  lcd->setCursor(10, 0);
   lcd->print(get_int(temp));
-  lcd->setCursor(0, 13);
+  lcd->setCursor(13, 0);
   lcd->print(get_dec1(temp));
 }
 
 Display::set_boiler_temp(float temp) {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
-  lcd->setCursor(1, 4);
+  lcd->setCursor(4, 1);
   lcd->print(get_int(temp));
-  lcd->setCursor(1, 7);
+  lcd->setCursor(7, 1);
   lcd->print(get_dec1(temp));
 }
 
 Display::set_boiler_wanted(float temp) {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
-  lcd->setCursor(1, 10);
+  lcd->setCursor(10, 1);
   lcd->print(get_int(temp));
-  lcd->setCursor(1, 13);
+  lcd->setCursor(13, 1);
   lcd->print(get_dec1(temp));
 }
 
@@ -269,7 +271,7 @@ Display::print_state(bool state)
 {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
 
-  if (state == true)
+  if (state == false)
   {
     lcd->print("OK ");
   }
@@ -282,8 +284,8 @@ Display::print_state(bool state)
 Display::set_error(bool sensor1, bool sensor2) {
   LiquidCrystal * lcd = (LiquidCrystal *)this->ptr;
   lcd->clear();
-  lcd->print("# E R R O R #");
-  lcd->setCursor(1, 0);
+  lcd->print("-- E R R O R --");
+  lcd->setCursor(0, 1);
   lcd->print("s1: ");
   this->print_state(sensor1);
   lcd->print("..");
@@ -293,6 +295,9 @@ Display::set_error(bool sensor1, bool sensor2) {
 
 
 void setup() {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);
   // put your setup code here, to run once:
   // 10 -> led & relay pump
   // 11 -> led & relay boiler
@@ -330,7 +335,12 @@ void setup() {
 
   wdt_enable(WDTO_8S);
 
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(200);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);
+
   while(true){
+
     heating_ptemp = potHeating.get_temperature();
     boiler_ptemp = potBoiler.get_temperature();
 
@@ -344,12 +354,12 @@ void setup() {
     lcdDisplay.set_heating_temp(heating_temperature);
     lcdDisplay.set_heating_wanted(heating_ptemp);
     lcdDisplay.set_boiler_temp(boiler_temperature);
-    lcdDisplay.set_boiler_temp(boiler_ptemp);
+    lcdDisplay.set_boiler_wanted(boiler_ptemp);
 
     error |= heating_sensor.is_error();
     error |= boiler_sensor.is_error();
     
-    if (!error){
+    if (true){
 
       // H-E-A-T-I-N-G
       // heating water too cold
