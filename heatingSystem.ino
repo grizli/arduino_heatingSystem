@@ -4,7 +4,7 @@
 #include <avr/wdt.h>
 
 class Output {
-  // General IO pin class
+  // Output IO pin class
   public:
   Output(int pin);
   void on();
@@ -359,7 +359,7 @@ void setup() {
     error |= heating_sensor.is_error();
     error |= boiler_sensor.is_error();
     
-    if (true){
+    if (!error){
 
       // H-E-A-T-I-N-G
       // heating water too cold
